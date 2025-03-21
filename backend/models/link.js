@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Link = sequelize.define('Link', {
+  const Link = sequelize.define('short_links', {
     original_url: { 
       type: DataTypes.STRING, 
       allowNull: false 
