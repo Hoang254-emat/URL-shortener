@@ -6,10 +6,10 @@ const ShortLinkDisplay = ({ shortUrl, shortCode, qrCode }) => {
     useEffect(() => {
         if (!shortCode) return;
 
-        fetch(`http://localhost:4000/stats/${shortCode}`)
-        .then((res) => res.json())
-        .then((data) => setClicks(data.clicks))
-        .catch((err) => console.error("Error fetching clicks:", err));
+        fetch(`/api/stats/${shortCode}`)
+            .then((res) => res.json())
+            .then((data) => setClicks(data.clicks))
+            .catch((err) => console.error("Error fetching clicks:", err));
     }, [shortCode]);
 
     return (
@@ -23,7 +23,6 @@ const ShortLinkDisplay = ({ shortUrl, shortCode, qrCode }) => {
             ) : (
                 <p>QR Code not available</p>
             )}
-
 
             <h3>Clicks: {clicks !== null ? clicks : "Loading..."}</h3>
         </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import QRCode from "qrcode.react";
 import ShortLinkDisplay from "@/components/ShortLinkDisplay";
@@ -12,10 +12,11 @@ export default function Home() {
 
   const handleShorten = async () => {
     try {
-      const res = await axios.post("http://localhost:4000/shorten", {
+      const res = await axios.post("https://s.toolhub.app:4444/api/shorten", {
         original_url: originalUrl,
       });
-      setShortUrl(`http://localhost:4000/${res.data.short_url}`);
+
+      setShortUrl(`https://s.toolhub.app/${res.data.short_url}`);
       setQrCode(res.data.qr);
       setShortCode(res.data.short_url);
     } catch (error) {

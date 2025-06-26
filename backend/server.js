@@ -44,14 +44,14 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API documentation for the URL Shortener service",
     },
-    servers: [{ url: "http://localhost:4000" }],
+    servers: [{ url: "https://s.toolhub.app:4444" }],
   },
   apis: ["./server.js"],
 };
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-console.log("📌 Swagger running at http://localhost:4000/api-docs");
+console.log("📌 Swagger running at https://s.toolhub.app:4444/api-docs");
 
 /**
  * @swagger
@@ -106,7 +106,7 @@ app.post('/shorten', async (req, res) => {
       link = await Link.create({ original_url, short_url });
     }
 
-    const qr = await QRCode.toDataURL(`http://localhost:4000/${link.short_url}`);
+    const qr = await QRCode.toDataURL(`https://s.toolhub.app:4444/${link.short_url}`);
     res.json({ short_url: link.short_url, qr });
 
   } catch (error) {
@@ -216,5 +216,5 @@ app.get("/", (req, res) => {
 });
 
 // 🔹 Khởi động Server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4444;
 app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));
