@@ -38,12 +38,12 @@ export class UrlService {
         shortUrl,
         qrCode: qrCodeDataUrl,
         clicks: existingUrl.clicks,
-        isNew: false, // Đánh dấu là không phải link mới
+        isNew: false, 
       };
     }
 
     // Nếu chưa tồn tại, tạo short_code mới
-    let shortCode: string = ''; // Đã khởi tạo để tránh lỗi "used before being assigned"
+    let shortCode: string = ''; 
     let isUnique = false;
     while (!isUnique) {
       shortCode = this.generateShortCode();
@@ -66,7 +66,7 @@ export class UrlService {
       shortUrl,
       qrCode: qrCodeDataUrl,
       clicks: newUrl.clicks,
-      isNew: true, // Đánh dấu là link mới
+      isNew: true, 
     };
   }
 
