@@ -11,6 +11,11 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// 🔹 Lấy PUBLIC_BASE_URL từ biến môi trường
+// Khi phát triển cục bộ, nó sẽ là http://localhost:3000
+// Khi triển khai trên server, nó sẽ là http://103.170.123.71 (sẽ cấu hình trong .env trên server)
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'http://localhost:3000';
+
 // 🔹 Kết nối Database PostgreSQL
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
   host: process.env.DB_HOST,
@@ -44,45 +49,45 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API documentation for the URL Shortener service",
     },
-    servers: [{ url: "https://s.toolhub.app:4444" }],
+    servers: [{ url: `${PUBLIC_BASE_URL}/api` }], // Đã sửa để dùng PUBLIC_BASE_URL
   },
   apis: ["./server.js"],
 };
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-console.log("📌 Swagger running at https://s.toolhub.app:4444/api-docs");
+console.log(`📌 Swagger running at ${PUBLIC_BASE_URL}/api/api-docs`); // Đã sửa để dùng PUBLIC_BASE_URL
 
 /**
  * @swagger
  * /shorten:
- *   post:
- *     summary: Rút gọn URL
- *     description: Nhận URL dài và trả về URL ngắn cùng với mã QR.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               original_url:
- *                 type: string
- *                 example: "https://example.com"
- *     responses:
- *       200:
- *         description: Trả về link rút gọn và QR code.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 short_url:
- *                   type: string
- *                   example: "abc123"
- *                 qr:
- *                   type: string
- *                   example: "data:image/png;base64,..."
+ * post:
+ * summary: Rút gọn URL
+ * description: Nhận URL dài và trả về URL ngắn cùng với mã QR.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * original_url:
+ * type: string
+ * example: "https://example.com"
+ * responses:
+ * 200:
+ * description: Trả về link rút gọn và QR code.
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * short_url:
+ * type: string
+ * example: "abc123"
+ * qr:
+ * type: string
+ * example: "data:image/png;base64,..."
  */
 app.post('/shorten', async (req, res) => {
   try {
@@ -106,7 +111,7 @@ app.post('/shorten', async (req, res) => {
       link = await Link.create({ original_url, short_url });
     }
 
-    const qr = await QRCode.toDataURL(`https://s.toolhub.app:4444/${link.short_url}`);
+    const qr = await QRCode.toDataURL(`${PUBLIC_BASE_URL}/${link.short_url}`); // Đã sửa để dùng PUBLIC_BASE_URL
     res.json({ short_url: link.short_url, qr });
 
   } catch (error) {
@@ -119,21 +124,21 @@ app.post('/shorten', async (req, res) => {
 /**
  * @swagger
  * /{short_url}:
- *   get:
- *     summary: Chuyển hướng đến link gốc
- *     description: Khi truy cập link rút gọn, người dùng sẽ được chuyển hướng đến link gốc.
- *     parameters:
- *       - name: short_url
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *         example: "abc123"
- *     responses:
- *       302:
- *         description: Chuyển hướng đến link gốc.
- *       404:
- *         description: Link không tồn tại.
+ * get:
+ * summary: Chuyển hướng đến link gốc
+ * description: Khi truy cập link rút gọn, người dùng sẽ được chuyển hướng đến link gốc.
+ * parameters:
+ * - name: short_url
+ * in: path
+ * required: true
+ * schema:
+ * type: string
+ * example: "abc123"
+ * responses:
+ * 302:
+ * description: Chuyển hướng đến link gốc.
+ * 404:
+ * description: Link không tồn tại.
  */
 app.get('/:short_url', async (req, res) => {
   try {
@@ -157,29 +162,29 @@ app.get('/:short_url', async (req, res) => {
 /**
  * @swagger
  * /stats/{short_url}:
- *   get:
- *     summary: Lấy số lượt click
- *     description: Trả về số lượt truy cập của link rút gọn.
- *     parameters:
- *       - name: short_url
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *         example: "abc123"
- *     responses:
- *       200:
- *         description: Trả về số lượt click.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 clicks:
- *                   type: integer
- *                   example: 15
- *       404:
- *         description: Link không tồn tại.
+ * get:
+ * summary: Lấy số lượt click
+ * description: Trả về số lượt truy cập của link rút gọn.
+ * parameters:
+ * - name: short_url
+ * in: path
+ * required: true
+ * schema:
+ * type: string
+ * example: "abc123"
+ * responses:
+ * 200:
+ * description: Trả về số lượt click.
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * clicks:
+ * type: integer
+ * example: 15
+ * 404:
+ * description: Link không tồn tại.
  */
 app.get('/stats/:short_url', async (req, res) => {
   try {
@@ -199,22 +204,22 @@ app.get('/stats/:short_url', async (req, res) => {
 /**
  * @swagger
  * /:
- *   get:
- *     summary: Trang chính của API
- *     description: Trả về lời chào từ API rút gọn URL.
- *     responses:
- *       200:
- *         description: Trả về nội dung trang chính.
- *         content:
- *           text/html:
- *             schema:
- *               type: string
- *               example: "Welcome to the URL Shortener API!"
+ * get:
+ * summary: Trang chính của API
+ * description: Trả về lời chào từ API rút gọn URL.
+ * responses:
+ * 200:
+ * description: Trả về nội dung trang chính.
+ * content:
+ * text/html:
+ * schema:
+ * type: string
+ * example: "Welcome to the URL Shortener API!"
  */
 app.get("/", (req, res) => {
   res.send("Welcome to the URL Shortener API!");
 });
 
 // 🔹 Khởi động Server
-const PORT = process.env.PORT || 4444;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));
